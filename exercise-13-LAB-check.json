@@ -1,0 +1,151 @@
+[
+    {
+        "id": "6abaa270d9202683",
+        "type": "tab",
+        "label": "Check LAB Values",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "98909805e70c0a2f",
+        "type": "mqtt in",
+        "z": "6abaa270d9202683",
+        "name": "Broker: IPB/IoT/Lab/AirQuality",
+        "topic": "IPB/IoT/Lab/AirQuality",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 220,
+        "y": 80,
+        "wires": [
+            [
+                "83a34b731d0d87c2"
+            ]
+        ]
+    },
+    {
+        "id": "d08a0217fd59879f",
+        "type": "mqtt in",
+        "z": "6abaa270d9202683",
+        "name": "Broker: IPB/IoT/Lab/Light",
+        "topic": "IPB/IoT/Lab/Light",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 210,
+        "y": 160,
+        "wires": [
+            [
+                "3b1e550e702f41c0"
+            ]
+        ]
+    },
+    {
+        "id": "b88264ed0757325d",
+        "type": "mqtt in",
+        "z": "6abaa270d9202683",
+        "name": "Broker: IPB/IoT/External/EnvironmentInfo",
+        "topic": "IPB/IoT/External/EnvironmentInfo",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 260,
+        "y": 240,
+        "wires": [
+            [
+                "3bd5f2fee9a2edca"
+            ]
+        ]
+    },
+    {
+        "id": "83a34b731d0d87c2",
+        "type": "debug",
+        "z": "6abaa270d9202683",
+        "name": "msg.payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "3b1e550e702f41c0",
+        "type": "debug",
+        "z": "6abaa270d9202683",
+        "name": "msg.payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "3bd5f2fee9a2edca",
+        "type": "debug",
+        "z": "6abaa270d9202683",
+        "name": "msg.payload",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d90e687126b3b561",
+        "type": "mqtt-broker",
+        "name": "MQTT Dashboard",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
