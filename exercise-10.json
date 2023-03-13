@@ -1,0 +1,377 @@
+[
+    {
+        "id": "ebace21c5b3a01d7",
+        "type": "tab",
+        "label": "Exercise 10",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "08d501a0f6bf6d0a",
+        "type": "inject",
+        "z": "ebace21c5b3a01d7",
+        "name": "Temperature Sensor",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "temperature/braganca,braganca,portugal",
+        "payload": "temp_value",
+        "payloadType": "str",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "ad3e58a1c5790e55"
+            ]
+        ]
+    },
+    {
+        "id": "41fbb1215d71e86b",
+        "type": "inject",
+        "z": "ebace21c5b3a01d7",
+        "name": "Humidity Sensor",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "humidity/braganca,braganca,portugal",
+        "payload": "hum_value",
+        "payloadType": "str",
+        "x": 140,
+        "y": 160,
+        "wires": [
+            [
+                "c7004f7b13fcd592"
+            ]
+        ]
+    },
+    {
+        "id": "ba5db3bf0bf97654",
+        "type": "inject",
+        "z": "ebace21c5b3a01d7",
+        "name": "Light Sensor",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "lights/status",
+        "payload": "light_status",
+        "payloadType": "str",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "aa3d52499eb872f7"
+            ]
+        ]
+    },
+    {
+        "id": "d9c3d0b3e4aac34c",
+        "type": "inject",
+        "z": "ebace21c5b3a01d7",
+        "name": "Light App",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "lights/sensor",
+        "payload": "toggle",
+        "payloadType": "str",
+        "x": 120,
+        "y": 320,
+        "wires": [
+            [
+                "0fb730e4b05ed3e8"
+            ]
+        ]
+    },
+    {
+        "id": "ad3e58a1c5790e55",
+        "type": "mqtt out",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Temperature",
+        "topic": "temperature/braganca,braganca,portugal",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "d90e687126b3b561",
+        "x": 600,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "c7004f7b13fcd592",
+        "type": "mqtt out",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Humidity",
+        "topic": "humidity/braganca,braganca,portugal",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "d90e687126b3b561",
+        "x": 580,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "aa3d52499eb872f7",
+        "type": "mqtt out",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Lights Status",
+        "topic": "lights/status",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "d90e687126b3b561",
+        "x": 600,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "0fb730e4b05ed3e8",
+        "type": "mqtt out",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Lights Sensor",
+        "topic": "lights/sensor",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "d90e687126b3b561",
+        "x": 600,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "0a88307d463c09b4",
+        "type": "mqtt in",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Temperature",
+        "topic": "temperature/braganca,braganca,portugal",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 400,
+        "wires": [
+            [
+                "a36ba877489f9887"
+            ]
+        ]
+    },
+    {
+        "id": "a36ba877489f9887",
+        "type": "debug",
+        "z": "ebace21c5b3a01d7",
+        "name": "Temperature Display",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "8344613a735922ef",
+        "type": "mqtt in",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Humidity",
+        "topic": "humidity/braganca,braganca,portugal",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 460,
+        "wires": [
+            [
+                "ac94391d4027470f"
+            ]
+        ]
+    },
+    {
+        "id": "ac94391d4027470f",
+        "type": "debug",
+        "z": "ebace21c5b3a01d7",
+        "name": "Humidity Display",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "a5208cfc8af4e167",
+        "type": "mqtt in",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Lights Status",
+        "topic": "lights/status",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 540,
+        "wires": [
+            [
+                "49dfece013d2f298"
+            ]
+        ]
+    },
+    {
+        "id": "49dfece013d2f298",
+        "type": "debug",
+        "z": "ebace21c5b3a01d7",
+        "name": "Lights Status Display",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "14fa41565b44758a",
+        "type": "mqtt in",
+        "z": "ebace21c5b3a01d7",
+        "name": "Broker: Lights Sensor",
+        "topic": "lights/sensor",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 620,
+        "wires": [
+            [
+                "9a5428b76821536a"
+            ]
+        ]
+    },
+    {
+        "id": "9a5428b76821536a",
+        "type": "debug",
+        "z": "ebace21c5b3a01d7",
+        "name": "Light Sensor",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "d90e687126b3b561",
+        "type": "mqtt-broker",
+        "name": "MQTT Dashboard",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
