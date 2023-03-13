@@ -1,0 +1,160 @@
+[
+    {
+        "id": "efdee5475b5c3754",
+        "type": "tab",
+        "label": "Exercise 9 - B",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2e01fd9111a6dae3",
+        "type": "mqtt out",
+        "z": "efdee5475b5c3754",
+        "name": "Broker",
+        "topic": "topic_b",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "d90e687126b3b561",
+        "x": 530,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "6bc52e3b9bd00692",
+        "type": "inject",
+        "z": "efdee5475b5c3754",
+        "name": "Program A",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "topic_b",
+        "payload": "Message topic_b",
+        "payloadType": "str",
+        "x": 240,
+        "y": 120,
+        "wires": [
+            [
+                "2e01fd9111a6dae3"
+            ]
+        ]
+    },
+    {
+        "id": "ab249a72162e25cc",
+        "type": "debug",
+        "z": "efdee5475b5c3754",
+        "name": "Program B",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 510,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b522f690c8d664b3",
+        "type": "debug",
+        "z": "efdee5475b5c3754",
+        "name": "Program C",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 510,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "cbd6baa04ccb32fc",
+        "type": "mqtt in",
+        "z": "efdee5475b5c3754",
+        "name": "Broker",
+        "topic": "topic_b",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 240,
+        "wires": [
+            [
+                "ab249a72162e25cc"
+            ]
+        ]
+    },
+    {
+        "id": "fb1a9db8a13a6715",
+        "type": "mqtt in",
+        "z": "efdee5475b5c3754",
+        "name": "Broker",
+        "topic": "topic_b",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "d90e687126b3b561",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 340,
+        "wires": [
+            [
+                "b522f690c8d664b3"
+            ]
+        ]
+    },
+    {
+        "id": "d90e687126b3b561",
+        "type": "mqtt-broker",
+        "name": "MQTT Dashboard",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
