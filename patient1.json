@@ -1,0 +1,1429 @@
+[
+    {
+        "id": "d70adf2920b75a90",
+        "type": "tab",
+        "label": "Patient 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2ec251ebb7a5f782",
+        "type": "mqtt in",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "topic": "healthMonitoring/patient1/temperature",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "5f4fbc56ede6dfcb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 470,
+        "y": 160,
+        "wires": [
+            [
+                "9af4c95ca98e6498"
+            ]
+        ]
+    },
+    {
+        "id": "5645eb8a2a3e32de",
+        "type": "mqtt in",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "topic": "healthMonitoring/patient1/bloodPressure/systolic",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "5f4fbc56ede6dfcb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 500,
+        "y": 220,
+        "wires": [
+            [
+                "2322e776299b93d0"
+            ]
+        ]
+    },
+    {
+        "id": "7bd20810250bf7cc",
+        "type": "mqtt in",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "topic": "healthMonitoring/patient1/heartRate",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "5f4fbc56ede6dfcb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 460,
+        "y": 340,
+        "wires": [
+            [
+                "4959032bc25b225d"
+            ]
+        ]
+    },
+    {
+        "id": "622615b937e554ce",
+        "type": "mqtt in",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "topic": "healthMonitoring/patient1/oxygenPercentage",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "5f4fbc56ede6dfcb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 490,
+        "y": 400,
+        "wires": [
+            [
+                "92e3e814c25ed8ec"
+            ]
+        ]
+    },
+    {
+        "id": "2322e776299b93d0",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Decrypt",
+        "func": "let encrypted = msg.payload;\nlet decrypted = \"\";\nlet index = [\"H\", \"q\", \"x\", \"(\", \"*\", \"=\", \"m\", \"'\", \"G\", \">\"];\nlet dotSymb = 'Q';\n\nfor (let i of encrypted) {\n    if (i == dotSymb) {\n        decrypted += '.';\n    } else {\n        for (let j = 0; j < index.length; j++) {\n            if (i == index[j]) {\n                decrypted += j;\n            }\n        }\n    }\n}\nmsg.payload = parseFloat(parseFloat(decrypted).toFixed(2));\nmsg.measurement = 'systolic';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 220,
+        "wires": [
+            [
+                "98f1c76dd76259bc"
+            ]
+        ]
+    },
+    {
+        "id": "4959032bc25b225d",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Decrypt",
+        "func": "let encrypted = msg.payload;\nlet decrypted = \"\";\nlet index = [\"H\", \"q\", \"x\", \"(\", \"*\", \"=\", \"m\", \"'\", \"G\", \">\"];\n\nfor (let i of encrypted) {\n    for (let j = 0; j < index.length; j++) {\n        if (i == index[j]) {\n            decrypted += j;\n        }\n    }\n}\nmsg.payload = parseInt(decrypted);\nmsg.measurement = 'heart rate';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 340,
+        "wires": [
+            [
+                "98f1c76dd76259bc"
+            ]
+        ]
+    },
+    {
+        "id": "92e3e814c25ed8ec",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Decrypt",
+        "func": "let encrypted = msg.payload;\nlet decrypted = \"\";\nlet index = [\"H\", \"q\", \"x\", \"(\", \"*\", \"=\", \"m\", \"'\", \"G\", \">\"];\n\nfor (let i of encrypted) {\n    for (let j = 0; j < index.length; j++) {\n        if (i == index[j]) {\n            decrypted += j;\n        }\n    }\n}\nmsg.payload = parseInt(decrypted);\nmsg.measurement = 'oxygen percentage';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 400,
+        "wires": [
+            [
+                "98f1c76dd76259bc"
+            ]
+        ]
+    },
+    {
+        "id": "88e4ed3e9bb428a8",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Current Temperature Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 780,
+        "y": 520,
+        "wires": [
+            [
+                "0dd77b2f1782c17c"
+            ]
+        ]
+    },
+    {
+        "id": "f6d6f3803fb83a74",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Temperature Last Hour Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 800,
+        "y": 560,
+        "wires": [
+            [
+                "1d8bd8aaabab1e13"
+            ]
+        ]
+    },
+    {
+        "id": "ad285b9a55144e8d",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Temperature Total Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: 0, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 790,
+        "y": 600,
+        "wires": [
+            [
+                "ff6ed9c69e075c8c"
+            ]
+        ]
+    },
+    {
+        "id": "117081d87b28f1c1",
+        "type": "inject",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "props": [],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 380,
+        "y": 660,
+        "wires": [
+            [
+                "88e4ed3e9bb428a8",
+                "025c719518ad47e7",
+                "759256900b4e3c43",
+                "0ba1da5c082370c9",
+                "902f81024373fe3d",
+                "f6d6f3803fb83a74",
+                "a835f399f18d3c09",
+                "7458773c36425ee8",
+                "60591d2566daf062",
+                "c37d12ea850cc7a4",
+                "a5d4cecce569d3d8",
+                "59044ef97f6234d1",
+                "f3d8ffe5fd20198b",
+                "9eb2cfc6ed7356be",
+                "ad285b9a55144e8d"
+            ]
+        ]
+    },
+    {
+        "id": "0dd77b2f1782c17c",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 520,
+        "wires": [
+            [
+                "0b57306d234d7302"
+            ]
+        ]
+    },
+    {
+        "id": "025c719518ad47e7",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Current Oxigen Percentage Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"oxygen percentage\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 800,
+        "y": 640,
+        "wires": [
+            [
+                "384bff4e3d93681a"
+            ]
+        ]
+    },
+    {
+        "id": "a835f399f18d3c09",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Oxigen Percentage Last Hour Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"oxygen percentage\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 820,
+        "y": 680,
+        "wires": [
+            [
+                "2c16c1b181291276"
+            ]
+        ]
+    },
+    {
+        "id": "9eb2cfc6ed7356be",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Oxigen Percentage Total Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: 0, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"oxygen percentage\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 810,
+        "y": 720,
+        "wires": [
+            [
+                "d16cc6eafc7d103f"
+            ]
+        ]
+    },
+    {
+        "id": "759256900b4e3c43",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Current Heart Rate Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"heart rate\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 770,
+        "y": 760,
+        "wires": [
+            [
+                "46c059e9878fe8d1"
+            ]
+        ]
+    },
+    {
+        "id": "7458773c36425ee8",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Heart Rate Last Hour Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"heart rate\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 800,
+        "y": 800,
+        "wires": [
+            [
+                "0591265f4912dd08"
+            ]
+        ]
+    },
+    {
+        "id": "f3d8ffe5fd20198b",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Heart Rate Total Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: 0, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"heart rate\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 780,
+        "y": 840,
+        "wires": [
+            [
+                "509e55d8c1a3f662"
+            ]
+        ]
+    },
+    {
+        "id": "0ba1da5c082370c9",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Current Systolic Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"systolic\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 760,
+        "y": 880,
+        "wires": [
+            [
+                "d64356881f681905"
+            ]
+        ]
+    },
+    {
+        "id": "b4ac10ee1cd49ade",
+        "type": "mqtt in",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "topic": "healthMonitoring/patient1/bloodPressure/diastolic",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "5f4fbc56ede6dfcb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 500,
+        "y": 280,
+        "wires": [
+            [
+                "558f2ae2eb2c0747"
+            ]
+        ]
+    },
+    {
+        "id": "558f2ae2eb2c0747",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Decrypt",
+        "func": "let encrypted = msg.payload;\nlet decrypted = \"\";\nlet index = [\"H\", \"q\", \"x\", \"(\", \"*\", \"=\", \"m\", \"'\", \"G\", \">\"];\nlet dotSymb = 'Q';\n\nfor (let i of encrypted) {\n    if (i == dotSymb) {\n        decrypted += '.';\n    } else {\n        for (let j = 0; j < index.length; j++) {\n            if (i == index[j]) {\n                decrypted += j;\n            }\n        }\n    }\n}\nmsg.payload = parseFloat(parseFloat(decrypted).toFixed(2));\nmsg.measurement = 'diastolic';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 280,
+        "wires": [
+            [
+                "98f1c76dd76259bc"
+            ]
+        ]
+    },
+    {
+        "id": "60591d2566daf062",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Systolic Last Hour Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"systolic\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 790,
+        "y": 920,
+        "wires": [
+            [
+                "cc4713c3bb999308"
+            ]
+        ]
+    },
+    {
+        "id": "59044ef97f6234d1",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Systolic Total Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: 0, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"systolic\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 770,
+        "y": 960,
+        "wires": [
+            [
+                "5967042ff1bae7d1"
+            ]
+        ]
+    },
+    {
+        "id": "902f81024373fe3d",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Current Diastolic Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"diastolic\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 760,
+        "y": 1000,
+        "wires": [
+            [
+                "c7aad95e8c3d8d6b"
+            ]
+        ]
+    },
+    {
+        "id": "c37d12ea850cc7a4",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Diastolic Last Hour Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"diastolic\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 790,
+        "y": 1040,
+        "wires": [
+            [
+                "51fe5c3eb9559903"
+            ]
+        ]
+    },
+    {
+        "id": "a5d4cecce569d3d8",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Mean Diastolic Total Query",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: 0, stop: now())\n  |> filter(fn: (r) => r[\"_measurement\"] == \"diastolic\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> mean(column: \"_value\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 780,
+        "y": 1080,
+        "wires": [
+            [
+                "9864721bddbd9a17"
+            ]
+        ]
+    },
+    {
+        "id": "1d8bd8aaabab1e13",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 560,
+        "wires": [
+            [
+                "99d3925a50e2e437"
+            ]
+        ]
+    },
+    {
+        "id": "ff6ed9c69e075c8c",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 600,
+        "wires": [
+            [
+                "54c77eaef7d7a651"
+            ]
+        ]
+    },
+    {
+        "id": "384bff4e3d93681a",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 640,
+        "wires": [
+            [
+                "ee950446a02556c4"
+            ]
+        ]
+    },
+    {
+        "id": "2c16c1b181291276",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 680,
+        "wires": [
+            [
+                "be33381694014d37"
+            ]
+        ]
+    },
+    {
+        "id": "d16cc6eafc7d103f",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 720,
+        "wires": [
+            [
+                "69f0ba61c171e5c2"
+            ]
+        ]
+    },
+    {
+        "id": "46c059e9878fe8d1",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 760,
+        "wires": [
+            [
+                "0702b0e30131f8da"
+            ]
+        ]
+    },
+    {
+        "id": "0591265f4912dd08",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 800,
+        "wires": [
+            [
+                "c78573f2a2f833f7"
+            ]
+        ]
+    },
+    {
+        "id": "509e55d8c1a3f662",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 840,
+        "wires": [
+            [
+                "fb19fcfc5f72a296"
+            ]
+        ]
+    },
+    {
+        "id": "d64356881f681905",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 880,
+        "wires": [
+            [
+                "4892a4ef0568d342"
+            ]
+        ]
+    },
+    {
+        "id": "cc4713c3bb999308",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 920,
+        "wires": [
+            [
+                "d4fdbf921857980a"
+            ]
+        ]
+    },
+    {
+        "id": "5967042ff1bae7d1",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 960,
+        "wires": [
+            [
+                "9011cf21ae5d47d5"
+            ]
+        ]
+    },
+    {
+        "id": "c7aad95e8c3d8d6b",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 1000,
+        "wires": [
+            [
+                "225e923bfa0d6304"
+            ]
+        ]
+    },
+    {
+        "id": "51fe5c3eb9559903",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 1040,
+        "wires": [
+            [
+                "227352d9465a6ebc"
+            ]
+        ]
+    },
+    {
+        "id": "9864721bddbd9a17",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "msg.payload = msg.payload[0]['_value'].toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 1080,
+        "wires": [
+            [
+                "e9f2caf7f78fbc8b"
+            ]
+        ]
+    },
+    {
+        "id": "ee950446a02556c4",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "7f0db740c90f0e28",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Current",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#e01b24",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "",
+        "seg2": "80",
+        "diff": false,
+        "className": "",
+        "x": 1200,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "be33381694014d37",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "7f0db740c90f0e28",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Last Hour",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#e01b24",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "",
+        "seg2": "80",
+        "diff": false,
+        "className": "",
+        "x": 1220,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "69f0ba61c171e5c2",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "7f0db740c90f0e28",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Total",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#e01b24",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "",
+        "seg2": "80",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "4892a4ef0568d342",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "6e5f964d872805b8",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Current",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "90",
+        "max": "180",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "110",
+        "seg2": "150",
+        "diff": false,
+        "className": "",
+        "x": 1200,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "d4fdbf921857980a",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "6e5f964d872805b8",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Last Hour",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "90",
+        "max": "180",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "110",
+        "seg2": "150",
+        "diff": false,
+        "className": "",
+        "x": 1220,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "9011cf21ae5d47d5",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "6e5f964d872805b8",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Total",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "90",
+        "max": "180",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "110",
+        "seg2": "150",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "225e923bfa0d6304",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "6742af1a19f076a2",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Current",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "60",
+        "max": "120",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "80",
+        "seg2": "100",
+        "diff": false,
+        "className": "",
+        "x": 1200,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "227352d9465a6ebc",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "6742af1a19f076a2",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Last Hour",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "60",
+        "max": "120",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "80",
+        "seg2": "100",
+        "diff": false,
+        "className": "",
+        "x": 1220,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "e9f2caf7f78fbc8b",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "6742af1a19f076a2",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Total",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "60",
+        "max": "120",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "80",
+        "seg2": "100",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "99d3925a50e2e437",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "a5034127dac3ed73",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Last Hour",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "35",
+        "max": "40",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "36",
+        "seg2": "39",
+        "diff": false,
+        "className": "",
+        "x": 1220,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "c78573f2a2f833f7",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "05295a7f3817bded",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Last Hour",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "40",
+        "max": "250",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "100",
+        "seg2": "150",
+        "diff": false,
+        "className": "",
+        "x": 1220,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "fb19fcfc5f72a296",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "05295a7f3817bded",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Total",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "40",
+        "max": "250",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "100",
+        "seg2": "150",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "0702b0e30131f8da",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "05295a7f3817bded",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Current",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "40",
+        "max": "250",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "100",
+        "seg2": "150",
+        "diff": false,
+        "className": "",
+        "x": 1200,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "54c77eaef7d7a651",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "a5034127dac3ed73",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Mean Total",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "35",
+        "max": "40",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "36",
+        "seg2": "39",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "0b57306d234d7302",
+        "type": "ui_gauge",
+        "z": "d70adf2920b75a90",
+        "name": "",
+        "group": "a5034127dac3ed73",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Current",
+        "label": "units",
+        "format": "{{value}}",
+        "min": "35",
+        "max": "40",
+        "colors": [
+            "#e6e600",
+            "#00b500",
+            "#ca3838"
+        ],
+        "seg1": "36",
+        "seg2": "39",
+        "diff": false,
+        "className": "",
+        "x": 1200,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "44f2b53a665eccf3",
+        "type": "ui_text",
+        "z": "d70adf2920b75a90",
+        "group": "a5034127dac3ed73",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Desde",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 1190,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "b07c794d6bb2f0e6",
+        "type": "inject",
+        "z": "d70adf2920b75a90",
+        "name": "Fetch",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 370,
+        "y": 1140,
+        "wires": [
+            [
+                "e42d9c43d4fa781f"
+            ]
+        ]
+    },
+    {
+        "id": "e42d9c43d4fa781f",
+        "type": "influxdb in",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Influx Monitoring Start Timestamp",
+        "query": "from(bucket: \"patient1\")\n  |> range(start: 0)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> first()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 780,
+        "y": 1140,
+        "wires": [
+            [
+                "156ee437d84ae806"
+            ]
+        ]
+    },
+    {
+        "id": "156ee437d84ae806",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Filter",
+        "func": "let time = msg.payload[0]['_time'];\nlet timeSplit = time.split('T');\nmsg.payload = `${timeSplit[0]} às ${timeSplit[1].slice(0, timeSplit[1].lastIndexOf('.'))}`\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 1140,
+        "wires": [
+            [
+                "44f2b53a665eccf3"
+            ]
+        ]
+    },
+    {
+        "id": "9af4c95ca98e6498",
+        "type": "function",
+        "z": "d70adf2920b75a90",
+        "name": "Decrypt",
+        "func": "let encrypted = msg.payload;\nlet decrypted = \"\";\nlet index = [\"H\", \"q\", \"x\", \"(\", \"*\", \"=\", \"m\", \"'\", \"G\", \">\"];\nlet dotSymb = 'Q';\n\nfor (let i of encrypted) {\n    if (i == dotSymb) {\n        decrypted += '.';\n    } else {\n        for (let j = 0; j < index.length; j++) {\n            if (i == index[j]) {\n                decrypted += j;\n            }\n        }\n    }\n}\nmsg.payload = parseFloat(parseFloat(decrypted).toFixed(2));\nmsg.measurement = 'temperature';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 160,
+        "wires": [
+            [
+                "98f1c76dd76259bc"
+            ]
+        ]
+    },
+    {
+        "id": "98f1c76dd76259bc",
+        "type": "influxdb out",
+        "z": "d70adf2920b75a90",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Health Data Patient 1",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "IPB",
+        "bucket": "patient1",
+        "x": 1040,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "5f4fbc56ede6dfcb",
+        "type": "mqtt-broker",
+        "name": "MQTT Broker Dashboard",
+        "broker": "broker.mqtt-dashboard.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "954d1570b3f4752e",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB Local",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "7f0db740c90f0e28",
+        "type": "ui_group",
+        "name": "Oxigen Percentage",
+        "tab": "b34c11f93d8db934",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "6e5f964d872805b8",
+        "type": "ui_group",
+        "name": "Systolic",
+        "tab": "b34c11f93d8db934",
+        "order": 5,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "6742af1a19f076a2",
+        "type": "ui_group",
+        "name": "Diastolic",
+        "tab": "b34c11f93d8db934",
+        "order": 6,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "a5034127dac3ed73",
+        "type": "ui_group",
+        "name": "Temperature",
+        "tab": "b34c11f93d8db934",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "05295a7f3817bded",
+        "type": "ui_group",
+        "name": "Heart Rate",
+        "tab": "b34c11f93d8db934",
+        "order": 6,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b34c11f93d8db934",
+        "type": "ui_tab",
+        "name": "Patient1",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]

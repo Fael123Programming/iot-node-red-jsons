@@ -1,0 +1,645 @@
+[
+    {
+        "id": "1f29de0e42165078",
+        "type": "tab",
+        "label": "Hospital Emergency Center",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "4b8746a18ed708f2",
+        "type": "ui_table",
+        "z": "1f29de0e42165078",
+        "group": "0521a1c66143153c",
+        "name": "",
+        "order": 2,
+        "width": "6",
+        "height": "1",
+        "columns": [
+            {
+                "field": "Patient",
+                "title": "Patient",
+                "width": "30px",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Status",
+                "title": "Status",
+                "width": "200px",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 1530,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "43afdc31d84840d9",
+        "type": "inject",
+        "z": "1f29de0e42165078",
+        "name": "",
+        "props": [],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 360,
+        "y": 320,
+        "wires": [
+            [
+                "5cdad50d2d777ed1",
+                "458bb2f1ebaa4300",
+                "76603d2a19e626d4",
+                "5a830c49906fdeb4",
+                "a913e76cf8c588a9"
+            ]
+        ]
+    },
+    {
+        "id": "32b6927aa42b9f07",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Patient 1 Report",
+        "func": "const TEMP_MAX = 40, TEMP_MIN = 35;\nconst SYS_MAX = 180, SYS_MIN = 90;\nconst DIAS_MAX = 120, DIAS_MIN = 60;\nconst HEART_RATE_MAX = 250, HEART_RATE_MIN = 40;\nconst OXYGEN_PERCENTAGE_MAX = 100, OXYGEN_PERCENTAGE_MIN = 80;\n\nlet status = '';\nlet payload = msg.payload;\n\nlet temp = payload.temperature;\nlet sys = payload.systolic;\nlet dias = payload.diastolic;\nlet hr = payload.heart_rate;\nlet op = payload.oxygen_percentage;\n\n// Check temperature.\nif (temp < 36) {\n    status += `Temperature (LOW=${temp}) `;\n} else if (temp > 39) {\n    status += `Temperature (HIGH=${temp}) `;\n}\n\n// Check systolic.\nif (sys < 110) {\n    status += `Systolic (LOW=${sys}) `;\n} else if (sys > 150) {\n    status += `Systolic (HIGH=${sys}) `;\n}\n\n// Check diastolic.\nif (dias < 80) {\n    status += `Diastolic (LOW=${dias}) `;\n} else if (dias > 100) {\n    status += `Diastolic (HIGH=${dias}) `;\n}\n\n// Check heart rate.\nif (hr < 100) {\n    status += `Heart Rate (LOW=${hr}) `;\n} else if (hr > 150) {\n    status += `Heart Rate (HIGH=${hr}) `;\n}\n\n// Check oxygen percentage.\nif (op < 80) {\n    status += `Oxygen Percentage (LOW=${op})`;\n}\n\nif (!status.length) {\n    status = 'Normal';\n}\n\nmsg.payload = {\n    'Patient': 'Patient 1',\n    'Status': status.trim()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1180,
+        "y": 320,
+        "wires": [
+            [
+                "18dd8ccd6ac7c48b"
+            ]
+        ]
+    },
+    {
+        "id": "c4f80cc019b70335",
+        "type": "debug",
+        "z": "1f29de0e42165078",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1540,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "5cdad50d2d777ed1",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 1 Temperature",
+        "query": "from(bucket: \"patient1\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"temperature\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 640,
+        "y": 240,
+        "wires": [
+            [
+                "e2689cde4594ccfe"
+            ]
+        ]
+    },
+    {
+        "id": "458bb2f1ebaa4300",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 1 Systolic",
+        "query": "from(bucket: \"patient1\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"systolic\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 630,
+        "y": 280,
+        "wires": [
+            [
+                "53657a746bfa7907"
+            ]
+        ]
+    },
+    {
+        "id": "e2689cde4594ccfe",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'temperature';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 240,
+        "wires": [
+            [
+                "97ae9bb1e0ce70a9"
+            ]
+        ]
+    },
+    {
+        "id": "53657a746bfa7907",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'systolic';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 280,
+        "wires": [
+            [
+                "97ae9bb1e0ce70a9"
+            ]
+        ]
+    },
+    {
+        "id": "97ae9bb1e0ce70a9",
+        "type": "join",
+        "z": "1f29de0e42165078",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "5",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1030,
+        "y": 320,
+        "wires": [
+            [
+                "32b6927aa42b9f07"
+            ]
+        ]
+    },
+    {
+        "id": "76603d2a19e626d4",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 1 Diastolic",
+        "query": "from(bucket: \"patient1\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"diastolic\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 630,
+        "y": 320,
+        "wires": [
+            [
+                "c79248b4d525f65c"
+            ]
+        ]
+    },
+    {
+        "id": "c79248b4d525f65c",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'diastolic';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 320,
+        "wires": [
+            [
+                "97ae9bb1e0ce70a9"
+            ]
+        ]
+    },
+    {
+        "id": "5a830c49906fdeb4",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 1 Oxygen Percentage",
+        "query": "from(bucket: \"patient1\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"oxygen percentage\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 660,
+        "y": 360,
+        "wires": [
+            [
+                "f1f1d8142d9c9191"
+            ]
+        ]
+    },
+    {
+        "id": "a913e76cf8c588a9",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 1 Heart Rate",
+        "query": "from(bucket: \"patient1\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"heart rate\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 640,
+        "y": 400,
+        "wires": [
+            [
+                "bb64b2ea7849de9f"
+            ]
+        ]
+    },
+    {
+        "id": "f1f1d8142d9c9191",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'oxygen_percentage';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 360,
+        "wires": [
+            [
+                "97ae9bb1e0ce70a9"
+            ]
+        ]
+    },
+    {
+        "id": "bb64b2ea7849de9f",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'heart_rate';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 400,
+        "wires": [
+            [
+                "97ae9bb1e0ce70a9"
+            ]
+        ]
+    },
+    {
+        "id": "18dd8ccd6ac7c48b",
+        "type": "join",
+        "z": "1f29de0e42165078",
+        "name": "",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1350,
+        "y": 420,
+        "wires": [
+            [
+                "c4f80cc019b70335",
+                "4b8746a18ed708f2"
+            ]
+        ]
+    },
+    {
+        "id": "b7994552be65c343",
+        "type": "inject",
+        "z": "1f29de0e42165078",
+        "name": "",
+        "props": [],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 360,
+        "y": 500,
+        "wires": [
+            [
+                "0d577914474c79e2",
+                "31b25fdeb4dfb333",
+                "dbf1e2a4ff203f6f",
+                "4ba2edc040e8cd5d",
+                "bef80d8c280a0efd"
+            ]
+        ]
+    },
+    {
+        "id": "a6ce90a689c03785",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Patient 2 Report",
+        "func": "const TEMP_MAX = 40, TEMP_MIN = 35;\nconst SYS_MAX = 180, SYS_MIN = 90;\nconst DIAS_MAX = 120, DIAS_MIN = 60;\nconst HEART_RATE_MAX = 250, HEART_RATE_MIN = 40;\nconst OXYGEN_PERCENTAGE_MAX = 100, OXYGEN_PERCENTAGE_MIN = 80;\n\nlet status = '';\nlet payload = msg.payload;\n\nlet temp = payload.temperature;\nlet sys = payload.systolic;\nlet dias = payload.diastolic;\nlet hr = payload.heart_rate;\nlet op = payload.oxygen_percentage;\n\n// Check temperature.\nif (temp < 36) {\n    status += `Temperature (LOW=${temp}) `;\n} else if (temp > 39) {\n    status += `Temperature (HIGH=${temp}) `;\n}\n\n// Check systolic.\nif (sys < 110) {\n    status += `Systolic (LOW=${sys}) `;\n} else if (sys > 150) {\n    status += `Systolic (HIGH=${sys}) `;\n}\n\n// Check diastolic.\nif (dias < 80) {\n    status += `Diastolic (LOW=${dias}) `;\n} else if (dias > 100) {\n    status += `Diastolic (HIGH=${dias}) `;\n}\n\n// Check heart rate.\nif (hr < 100) {\n    status += `Heart Rate (LOW=${hr}) `;\n} else if (hr > 150) {\n    status += `Heart Rate (HIGH=${hr}) `;\n}\n\n// Check oxygen percentage.\nif (op < 80) {\n    status += `Oxygen Percentage (LOW=${op})`;\n}\n\nif (!status.length) {\n    status = 'Normal';\n}\n\nmsg.payload = {\n    'Patient': 'Patient 2',\n    'Status': status.trim()\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1180,
+        "y": 520,
+        "wires": [
+            [
+                "18dd8ccd6ac7c48b"
+            ]
+        ]
+    },
+    {
+        "id": "0d577914474c79e2",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 2 Temperature",
+        "query": "from(bucket: \"patient2\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"temperature\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 640,
+        "y": 440,
+        "wires": [
+            [
+                "bfbe9c59bf2e1bed"
+            ]
+        ]
+    },
+    {
+        "id": "31b25fdeb4dfb333",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 2 Systolic",
+        "query": "from(bucket: \"patient2\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"systolic\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 630,
+        "y": 480,
+        "wires": [
+            [
+                "ac38ca800ea660ac"
+            ]
+        ]
+    },
+    {
+        "id": "bfbe9c59bf2e1bed",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'temperature';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 440,
+        "wires": [
+            [
+                "eaad1022cae6812c"
+            ]
+        ]
+    },
+    {
+        "id": "ac38ca800ea660ac",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'systolic';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 480,
+        "wires": [
+            [
+                "eaad1022cae6812c"
+            ]
+        ]
+    },
+    {
+        "id": "eaad1022cae6812c",
+        "type": "join",
+        "z": "1f29de0e42165078",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "5",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 1030,
+        "y": 520,
+        "wires": [
+            [
+                "a6ce90a689c03785"
+            ]
+        ]
+    },
+    {
+        "id": "dbf1e2a4ff203f6f",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 2 Diastolic",
+        "query": "from(bucket: \"patient2\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"diastolic\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 630,
+        "y": 520,
+        "wires": [
+            [
+                "f2e6167b1b25756e"
+            ]
+        ]
+    },
+    {
+        "id": "f2e6167b1b25756e",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'diastolic';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 520,
+        "wires": [
+            [
+                "eaad1022cae6812c"
+            ]
+        ]
+    },
+    {
+        "id": "4ba2edc040e8cd5d",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 2 Oxygen Percentage",
+        "query": "from(bucket: \"patient2\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"oxygen percentage\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 660,
+        "y": 560,
+        "wires": [
+            [
+                "72efb58876f765e0"
+            ]
+        ]
+    },
+    {
+        "id": "bef80d8c280a0efd",
+        "type": "influxdb in",
+        "z": "1f29de0e42165078",
+        "influxdb": "954d1570b3f4752e",
+        "name": "Patient 2 Heart Rate",
+        "query": "from(bucket: \"patient2\")\n|>range(start: 0)\n|>filter(fn: (r) => r[\"_field\"] == \"value\" and r[\"_measurement\"] == \"heart rate\")\n|>last()",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "IPB",
+        "x": 640,
+        "y": 600,
+        "wires": [
+            [
+                "263ab6a966513456"
+            ]
+        ]
+    },
+    {
+        "id": "72efb58876f765e0",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'oxygen_percentage';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 560,
+        "wires": [
+            [
+                "eaad1022cae6812c"
+            ]
+        ]
+    },
+    {
+        "id": "263ab6a966513456",
+        "type": "function",
+        "z": "1f29de0e42165078",
+        "name": "Get Value",
+        "func": "msg.topic = 'heart_rate';\nmsg.payload = msg.payload[0]['_value'];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 600,
+        "wires": [
+            [
+                "eaad1022cae6812c"
+            ]
+        ]
+    },
+    {
+        "id": "0521a1c66143153c",
+        "type": "ui_group",
+        "name": "Real-time Patient Status",
+        "tab": "213fc34339736ab6",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "954d1570b3f4752e",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "InfluxDB Local",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "213fc34339736ab6",
+        "type": "ui_tab",
+        "name": "Hospital Emergency Center",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
